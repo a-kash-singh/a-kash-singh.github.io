@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Akash Singh · SRE</title>
+<meta name="description" content="Akash Singh — Senior Site Reliability Engineer. Kubernetes, Kafka CDC platforms, Terraform, AWS cost engineering, observability.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Schibsted+Grotesk:wght@600;800;900&display=swap">
+<style>
+:root{
+  --ground:#EBEEF1; --surface:#FFFFFF; --sunk:#E1E6EA;
+  --ink:#101820; --muted:#54616C; --line:#C9D1D8;
+  --accent:#2F4BD6; --accent-soft:#DCE2FB;
+  --ok:#1E9A57; --warn:#C08300;
+  --c-phdata:#6B7A89; --tag-ink:#FFFFFF; --c-pharm:#5B7BD8; --c-vmw:#2B9A8E; --c-allen:#2F4BD6;
+  --display:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans",-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0D1318; --surface:#141C23; --sunk:#1B252E;
+    --ink:#E3E9EE; --muted:#8C9AA6; --line:#26323D;
+    --accent:#8FA3FF; --accent-soft:#1E2748;
+    --ok:#3CC47A; --warn:#E3A92B;
+    --c-phdata:#7F8E9C; --tag-ink:#0D1318; --c-pharm:#6A88E6; --c-vmw:#39B3A5; --c-allen:#8FA3FF;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0D1318; --surface:#141C23; --sunk:#1B252E;
+  --ink:#E3E9EE; --muted:#8C9AA6; --line:#26323D;
+  --accent:#8FA3FF; --accent-soft:#1E2748;
+  --ok:#3CC47A; --warn:#E3A92B;
+  --c-phdata:#7F8E9C; --tag-ink:#0D1318; --c-pharm:#6A88E6; --c-vmw:#39B3A5; --c-allen:#8FA3FF;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--body);margin:0;padding-inline:20px;padding-block:0 48px}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:88px}
+#topo{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(50% - 600px),rgba(0,0,0,.14) calc(50% - 500px),rgba(0,0,0,.14) calc(50% + 500px),#000 calc(50% + 600px),#000 100%);
+  mask-image:linear-gradient(90deg,#000 0,#000 calc(50% - 600px),rgba(0,0,0,.14) calc(50% - 500px),rgba(0,0,0,.14) calc(50% + 500px),#000 calc(50% + 600px),#000 100%)}
+@media (max-width:1100px){.pms{grid-template-columns:1fr 1fr}}
+@media (max-width:1100px){#topo{opacity:.35;-webkit-mask-image:none;mask-image:none}}
+.bg-legend{position:fixed;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:4;font:400 .68rem var(--mono);color:var(--muted);background:color-mix(in srgb,var(--surface) 80%,transparent);border:1px solid var(--line);border-radius:6px;padding:6px 9px;display:flex;gap:10px;align-items:center;pointer-events:none}
+.bg-legend i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.theme-btn{display:inline-flex;align-items:center;gap:7px;font:500 .78rem var(--mono);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 11px;cursor:pointer}
+.theme-btn:hover{border-color:var(--accent)}
+.theme-btn svg{width:14px;height:14px}
+.top-right{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+@media (max-width:560px){.bg-legend{display:none}}
+.mono{font-family:var(--mono)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(1.6rem,3.2vw,2.2rem);font-weight:800;line-height:1.15}
+h3{font-size:1.2rem;font-weight:800}
+p{margin:0}
+.label{font:500 .75rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sec-head{display:flex;flex-direction:column;gap:12px;max-width:62ch}
+.sec-head p{color:var(--muted)}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-inline:-20px;padding:12px 20px}
+.top-in{max-width:1040px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{font:700 .9rem var(--mono);color:var(--ink);text-decoration:none}
+.brand span{color:var(--muted);font-weight:400}
+.nav{display:flex;gap:18px;flex-wrap:wrap}
+.nav a{font:500 .8rem var(--mono);color:var(--muted);text-decoration:none}
+.nav a:hover{color:var(--ink)}
+
+/* hero */
+.hero{padding-top:56px;display:flex;flex-direction:column;gap:28px}
+.status-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;font:500 .78rem/1 var(--mono);padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent);animation:pulse 2.4s infinite}
+.dot.warn{background:var(--warn);animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.hero h1{font-size:clamp(2.6rem,7.4vw,5.4rem);font-weight:900;line-height:.98;letter-spacing:-.03em;max-width:14ch}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch}
+.lede strong{color:var(--ink);font-weight:600}
+
+/* uptime */
+.uptime{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.uptime-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.uptime-head b{font:700 1rem var(--mono)}
+.uptime-head .pct{font:700 1rem var(--mono);color:var(--ok)}
+.bars{display:grid;grid-template-columns:repeat(29,1fr);gap:3px;height:44px}
+.bars i{display:block;border-radius:2px;background:var(--c);transition:transform .15s}
+.bars i:hover{transform:scaleY(1.12)}
+.axis{position:relative;height:1.1em;font:400 .72rem var(--mono);color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font:400 .78rem var(--mono);color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend span::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--c)}
+.axis span{position:absolute;top:0;white-space:nowrap}
+#bar-tip{font:400 .78rem var(--mono);color:var(--ink);min-height:1.2em}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.kpi{padding:20px;display:flex;flex-direction:column;gap:6px;border-left:1px solid var(--line)}
+.kpi:first-child{border-left:0}
+.kpi b{font:800 clamp(1.6rem,3.4vw,2.3rem)/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi span{font-size:.86rem;color:var(--muted);line-height:1.4}
+
+/* impact */
+.panels{display:grid;grid-template-columns:1.1fr 1fr;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.panel-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.panel-title h3{font-size:1rem}
+.cost{display:flex;flex-direction:column;gap:8px}
+.cost-name{display:flex;justify-content:space-between;gap:10px;font-size:.92rem}
+.cost-name b{font:700 .85rem var(--mono);color:var(--ok)}
+.track{position:relative;height:14px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.track .before{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(135deg,var(--line) 0 4px,transparent 4px 8px);border-right:2px solid var(--muted)}
+.track .after{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:3px 0 0 3px}
+.cost-vals{display:flex;justify-content:space-between;font:400 .75rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.scale{display:flex;justify-content:space-between;font:400 .7rem var(--mono);color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.key{display:flex;gap:16px;font:400 .75rem var(--mono);color:var(--muted);flex-wrap:wrap}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.key .k1::before,.key .k2::before{content:"";width:14px;height:10px;border-radius:2px}
+.key .k1::before{background:repeating-linear-gradient(135deg,var(--muted) 0 2px,transparent 2px 4px)}
+.key .k2::before{background:var(--accent)}
+.pct-list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.pct-list li{display:grid;grid-template-columns:1fr 3.2rem;gap:4px 12px;align-items:center}
+.pct-list .nm{font-size:.9rem}
+.pct-list .nm small{color:var(--muted);font:400 .72rem var(--mono);margin-left:6px}
+.pct-list .v{font:700 .85rem var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.pct-list .t{grid-column:1/-1;height:6px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.pct-list .t i{display:block;height:100%;background:var(--ok);border-radius:3px}
+.monthly{display:flex;gap:12px;flex-wrap:wrap}
+.monthly div{flex:1 1 130px;background:var(--sunk);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.monthly b{font:700 1.05rem var(--mono)}
+.monthly span{font-size:.82rem;color:var(--muted);line-height:1.35}
+
+/* platform diagram */
+.flow-wrap{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;display:flex;flex-direction:column;gap:22px}
+.flow{display:grid;grid-template-columns:1fr auto 1.2fr auto 1fr;gap:12px;align-items:center}
+.stage{display:flex;flex-direction:column;gap:8px}
+.stage .label{margin-bottom:2px}
+.node{border:1px solid var(--line);background:var(--ground);border-radius:6px;padding:9px 12px;font:500 .84rem var(--mono)}
+.node.hl{border-color:var(--accent);background:var(--accent-soft)}
+.node small{display:block;color:var(--muted);font-weight:400;font-size:.72rem;margin-top:2px}
+.arrow{font:700 1.2rem var(--mono);color:var(--muted);text-align:center}
+.slis{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 .76rem/1 var(--mono);padding:7px 10px;border-radius:5px;border:1px solid var(--line);color:var(--ink);background:var(--ground)}
+.chip.ok{border-color:color-mix(in srgb,var(--ok) 55%,var(--line));color:var(--ok)}
+.flow-foot{display:grid;grid-template-columns:1fr 1fr;gap:20px;border-top:1px solid var(--line);padding-top:20px}
+.flow-foot p{font-size:.92rem;color:var(--muted)}
+.flow-foot b{color:var(--ink);font-weight:600}
+
+/* experience */
+.log{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.entry{display:grid;grid-template-columns:190px 1fr;gap:24px;padding:28px 0;border-bottom:1px solid var(--line)}
+.when{display:flex;flex-direction:column;gap:8px}
+.when .mono{font-size:.8rem;color:var(--muted)}
+.tag{align-self:flex-start;font:500 .7rem/1 var(--mono);padding:5px 8px;border-radius:4px;color:var(--tag-ink);background:var(--c)}
+.role{display:flex;flex-direction:column;gap:12px;max-width:70ch}
+.role h3 span{color:var(--muted);font-weight:600}
+.role ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:7px}
+.role li{color:var(--ink)}
+.role li::marker{color:var(--muted)}
+.groups{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px}
+.groups h4{margin:0 0 6px;font:500 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.groups ul{font-size:.94rem}
+
+/* projects */
+.repos{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.repo{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+.repo:hover{border-color:var(--accent);transform:translateY(-2px)}
+.repo-name{font:700 1rem var(--mono);color:var(--accent)}
+.repo p{font-size:.92rem;color:var(--muted);flex:1}
+.langs{display:flex;gap:6px;flex-wrap:wrap}
+.langs .chip{font-size:.7rem;padding:5px 8px}
+
+/* stack */
+.stack{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow-x:auto}
+.stack pre{margin:0;padding:22px;font:400 .86rem/1.75 var(--mono);color:var(--ink)}
+.stack .k{color:var(--accent)}
+.stack .c{color:var(--muted)}
+
+/* contact + credits */
+.contact{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:start}
+.contact h2{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-.02em}
+.links{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.links > *{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font:500 .9rem var(--mono);color:var(--ink);text-decoration:none}
+.links a:hover{color:var(--accent)}
+.links .muted{color:var(--muted);font-weight:400}
+.own{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.own ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px}
+.own li{display:grid;grid-template-columns:7.2rem 1fr;gap:12px;font-size:.93rem;line-height:1.5}
+.own li b{font:500 .72rem/1.6 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.team{display:grid;grid-template-columns:1fr 1.1fr;gap:24px;align-items:start}
+.team ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.team-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.team-stats div{background:var(--sunk);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.team-stats b{font:800 1.5rem/1.1 var(--display);font-variant-numeric:tabular-nums}
+.team-stats .wide{grid-column:1/-1}
+.team-stats span{font-size:.82rem;color:var(--muted);line-height:1.35}
+@media (max-width:860px){.team{grid-template-columns:1fr}}
+.own .note{font-size:.84rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
+.pms{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pm{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.pm-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sev{font:700 .68rem/1 var(--mono);padding:5px 7px;border-radius:4px;color:var(--tag-ink);background:var(--c)}
+.pm-top .mono{font-size:.72rem;color:var(--muted)}
+.pm h3{font-size:1.02rem;line-height:1.3}
+.pm dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:.88rem;line-height:1.45}
+.pm dt{font:500 .68rem/1.9 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.pm dd{margin:0}
+.credits{border-top:1px solid var(--line);padding-top:24px;display:flex;flex-direction:column;gap:10px;font-size:.86rem;color:var(--muted);max-width:80ch}
+.credits ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:5px}
+
+@media (max-width:860px){
+  .panels,.contact,.flow-foot,.groups,.own{grid-template-columns:1fr}
+  .pms{grid-template-columns:1fr}
+  .own li{grid-template-columns:1fr;gap:2px}
+  .repos{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi:nth-child(3){border-left:0}
+  .kpi:nth-child(n+3){border-top:1px solid var(--line)}
+  .flow{grid-template-columns:1fr}
+  .arrow{transform:rotate(90deg)}
+  .entry{grid-template-columns:1fr;gap:12px}
+  .when{flex-direction:row;align-items:center;flex-wrap:wrap}
+}
+@media (max-width:480px){.bars{gap:2px;height:36px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- terminal mode ---------- */
+.term-btn{display:inline-flex;align-items:center;gap:7px;font:600 .78rem var(--mono);color:var(--ground);background:var(--ink);border:1px solid var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.term-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.hero-cta .hint{font:400 .8rem var(--mono);color:var(--muted)}
+.hero-cta kbd{font:500 .75rem var(--mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 6px;background:var(--surface);color:var(--ink)}
+.term-open{font:600 .9rem var(--mono);color:#E6EDF3;background:#0B1016;border:1px solid #0B1016;border-radius:8px;padding:12px 16px;cursor:pointer;display:inline-flex;gap:10px;align-items:center}
+.term-open span{color:#3CC47A}
+.term-open:hover{outline:2px solid var(--accent);outline-offset:2px}
+
+[hidden]{display:none!important}
+#term{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px));background:rgba(5,9,13,.55);backdrop-filter:blur(3px)}
+.tw{--t-bg:#0B1016;--t-bar:#141C24;--t-fg:#D6DEE6;--t-dim:#6F7F8C;--t-green:#3CC47A;--t-amber:#E3A92B;--t-red:#F26D6D;--t-blue:#8FA3FF;--t-cyan:#5CC8D6;--t-line:#23303B;
+  width:min(1100px,100%);height:min(760px,100%);background:var(--t-bg);color:var(--t-fg);border:1px solid var(--t-line);border-radius:10px;box-shadow:0 30px 80px rgba(0,0,0,.45);display:flex;flex-direction:column;overflow:hidden;font:400 14px/1.55 var(--mono)}
+.tw-bar{display:flex;align-items:center;gap:12px;padding:9px 12px;background:var(--t-bar);border-bottom:1px solid var(--t-line);color:var(--t-dim);font-size:12px}
+.tw-dots{display:flex;gap:7px}
+.tw-dots button{width:12px;height:12px;border-radius:50%;border:0;padding:0;cursor:pointer}
+.tw-dots .r{background:#F26D6D}.tw-dots .y{background:#E3A92B}.tw-dots .g{background:#3CC47A}
+.tw-title{flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tw-x{background:none;border:1px solid var(--t-line);color:var(--t-fg);font:500 11px var(--mono);border-radius:5px;padding:3px 8px;cursor:pointer}
+.tw-body{flex:1;overflow-y:auto;padding:14px 16px 8px;overscroll-behavior:contain}
+.tw-out{white-space:pre-wrap;word-break:break-word}
+.tw-out .ln{min-height:1.55em}
+.tw-out pre{margin:0;font:inherit;white-space:pre;overflow-x:auto}
+.tw-line{display:flex;gap:8px;align-items:baseline;padding-bottom:8px}
+.tw-ps1{white-space:nowrap;color:var(--t-green)}
+.tw-ps1 b{color:var(--t-blue);font-weight:500}
+.tw-in{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--t-fg);font:inherit;caret-color:var(--t-green);padding:0}
+.tw-chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--t-line);background:var(--t-bar)}
+.tw-chips button{font:500 11.5px var(--mono);color:var(--t-fg);background:var(--t-bg);border:1px solid var(--t-line);border-radius:5px;padding:5px 9px;cursor:pointer}
+.tw-chips button:hover{border-color:var(--t-green);color:var(--t-green)}
+.tw .g{color:var(--t-green)}.tw .a{color:var(--t-amber)}.tw .r{color:var(--t-red)}.tw .b{color:var(--t-blue)}.tw .c{color:var(--t-cyan)}.tw .d{color:var(--t-dim)}.tw .w{color:#fff;font-weight:700}
+.tw a{color:var(--t-cyan)}
+.tw .bar{color:var(--t-green)}
+.tw .inv{background:var(--t-green);color:var(--t-bg);padding:0 4px}
+.tw-cursor{display:inline-block;width:.6em;height:1.1em;background:var(--t-green);vertical-align:text-bottom;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+@media (max-width:600px){.tw{font-size:12.5px;height:100%}.tw-title{display:none}#term{padding:8px}}
+@media (prefers-reduced-motion:reduce){.tw-cursor{animation:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#top">akash-singh<span>.prod</span></a>
+    <div class="top-right">
+    <nav class="nav" aria-label="Sections">
+      <a href="#impact">impact</a><a href="#platform">platform</a><a href="#ownership">ownership</a><a href="#postmortems">postmortems</a><a href="#experience">experience</a><a href="#projects">projects</a><a href="#contact">contact</a>
+    </nav>
+    <button class="term-btn" data-open-term type="button" aria-label="Open terminal mode">&gt;_ terminal</button>
+    <button class="theme-btn" id="theme-btn" type="button" aria-label="Switch colour theme"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4z" fill="currentColor"/></svg><span id="theme-label">dark</span></button>
+    </div>
+  </div>
+</header>
+<div id="term" hidden role="dialog" aria-modal="true" aria-label="Terminal mode">
+  <div class="tw">
+    <div class="tw-bar">
+      <div class="tw-dots"><button class="r" data-close type="button" aria-label="Close terminal"></button><button class="y" data-close type="button" aria-label="Minimise terminal"></button><button class="g" type="button" aria-hidden="true" tabindex="-1"></button></div>
+      <div class="tw-title">akash@prod-eks: ~ — zsh — kubectl context: career</div>
+      <button class="tw-x" data-close type="button">exit</button>
+    </div>
+    <div class="tw-body">
+      <div class="tw-out" aria-live="polite"></div>
+      <div class="tw-line"><label class="tw-ps1" for="tw-in">akash@prod-eks:<b>~</b>$</label><input id="tw-in" class="tw-in" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Terminal command"></div>
+    </div>
+    <div class="tw-chips" aria-label="Quick commands">
+      <button type="button">help</button><button type="button">neofetch</button><button type="button">kubectl get pods</button><button type="button">kubectl logs akash</button><button type="button">terraform plan</button><button type="button">incident</button><button type="button">chaos</button><button type="button">contact</button><button type="button">exit</button>
+    </div>
+  </div>
+</div>
+<canvas id="topo" aria-hidden="true"></canvas>
+<div class="bg-legend" aria-hidden="true"><span><i style="background:var(--ok)"></i>pod healthy</span><span><i style="background:var(--warn)"></i>restarting</span><span><i style="background:var(--accent)"></i>request</span></div>
+
+<main class="wrap" id="top">
+  <section class="hero">
+    <div class="status-row">
+      <span class="pill"><span class="dot"></span>All systems operational</span>
+      <span class="pill">Bangalore · IST</span>
+    </div>
+    <h1>I keep production <em>boring</em>.</h1>
+    <p class="lede">I'm <strong>Akash Singh</strong>, a Senior Site Reliability Engineer with 7 years on call for Hadoop clusters, Kubernetes fleets and Kafka streaming platforms. I build self-service infrastructure on AWS with Terraform and GitOps, set SLOs that teams actually use, and take a lot of money off the cloud bill along the way.</p>
+    <div class="hero-cta">
+      <button class="term-open" data-open-term type="button"><span>akash@prod-eks:~$</span> kubectl get pods</button>
+      <span class="hint">Prefer a shell? Open terminal mode, or press <kbd>`</kbd> anywhere.</span>
+    </div>
+
+    <div class="uptime" aria-label="Career uptime by quarter">
+      <div class="uptime-head">
+        <b>career.uptime · Q3 2019 → today</b>
+        <span class="pct">29 / 29 quarters shipping</span>
+      </div>
+      <div class="bars" id="bars"></div>
+      <div class="axis"><span style="left:0">Q3 2019</span><span style="left:20.7%">2021</span><span style="left:48.3%">2023</span><span style="left:75.9%">2025</span><span style="right:0">now</span></div>
+      <div id="bar-tip" aria-live="polite">Hover a bar to see the quarter.</div>
+      <div class="legend">
+        <span style="--c:var(--c-phdata)">phData</span>
+        <span style="--c:var(--c-pharm)">PharmEasy</span>
+        <span style="--c:var(--c-vmw)">VMware</span>
+        <span style="--c:var(--c-allen)">Allen Digital</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="kpis" aria-label="Headline numbers">
+    <div class="kpi"><b>$204k+</b><span>per year in documented AWS savings at Allen Digital</span></div>
+    <div class="kpi"><b>~200</b><span>microservices on the production app EKS cluster I managed</span></div>
+    <div class="kpi"><b>900+</b><span>CDC connectors on Kafka Connect and MSK, reconciled from Git</span></div>
+    <div class="kpi"><b>597</b><span>pull requests across ~60 repos in two years at Allen</span></div>
+  </section>
+
+  <section id="impact" style="display:flex;flex-direction:column;gap:28px">
+    <div class="sec-head">
+      <span class="label">cost · reliability · impact</span>
+      <h2>Cost engineering, measured in dollars</h2>
+      <p>Most of these came from migrations that had to stay invisible to users: zero-downtime cutovers, Spot runbooks, and routing changes that nobody noticed except finance.</p>
+    </div>
+    <div class="panels">
+      <div class="panel">
+        <div class="panel-title"><h3>Annual spend, before → after</h3><span class="label">USD / yr</span></div>
+        <div class="cost">
+          <div class="cost-name">Spark on EMR → Spot Instances <b>−53%</b></div>
+          <div class="track"><div class="before" style="width:96%"></div><div class="after" style="width:45%"></div></div>
+          <div class="cost-vals"><span>after $45k</span><span>before $96k</span></div>
+        </div>
+        <div class="cost">
+          <div class="cost-name">AWS OpenSearch → self-hosted (Terraform) <b>−56%</b></div>
+          <div class="track"><div class="before" style="width:80%"></div><div class="after" style="width:35%"></div></div>
+          <div class="cost-vals"><span>after $35k</span><span>before $80k</span></div>
+        </div>
+        <div class="scale"><span>$0</span><span>$25k</span><span>$50k</span><span>$75k</span><span>$100k</span></div>
+        <div class="key"><span class="k1">before</span><span class="k2">after</span></div>
+        <div class="monthly">
+          <div><b>$5,000+/mo</b><span>VPC consolidation with MSK and EBS rightsizing, zero downtime</span></div>
+          <div><b>$1,500+/mo</b><span>Kafka connector networking via same-AZ broker alignment</span></div>
+          <div><b>~$30k/yr</b><span>ElastiCache reserved nodes plus a Compute Savings Plan</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><h3>Reduction by initiative</h3><span class="label">% of prior cost</span></div>
+        <ul class="pct-list">
+          <li><span class="nm">OpenSearch self-hosting<small>Allen</small></span><span class="v">56%</span><span class="t"><i style="width:56%"></i></span></li>
+          <li><span class="nm">Spark compute on Spot<small>Allen</small></span><span class="v">53%</span><span class="t"><i style="width:53%"></i></span></li>
+          <li><span class="nm">Inter-AZ transfer, zone-aware routing<small>Allen</small></span><span class="v">~40%</span><span class="t"><i style="width:40%"></i></span></li>
+          <li><span class="nm">ElastiCache RIs + Compute Savings Plan<small>Allen</small></span><span class="v">~30%</span><span class="t"><i style="width:30%"></i></span></li>
+          <li><span class="nm">Overall AWS bill<small>PharmEasy</small></span><span class="v">~25%</span><span class="t"><i style="width:25%"></i></span></li>
+          <li><span class="nm">Groundcover ingestion, high-cardinality labels dropped<small>Allen</small></span><span class="v">20%+</span><span class="t"><i style="width:20%"></i></span></li>
+          <li><span class="nm">ElastiCache Redis → Valkey<small>Allen</small></span><span class="v">~20%</span><span class="t"><i style="width:20%"></i></span></li>
+        </ul>
+        <p style="font-size:.86rem;color:var(--muted)">The Groundcover change also improved query latency by more than 25%.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="platform" style="display:flex;flex-direction:column;gap:28px">
+    <div class="sec-head">
+      <span class="label">flagship · allen digital · 2024–2026</span>
+      <h2>A self-service CDC and event platform, built from zero</h2>
+      <p>Every insert, update and delete from the app databases, plus client events from web, mobile and iPad, lands in ClickHouse through one Kafka backbone. I built it across three EKS clusters, provisioned it in Terraform, and carried the pager for it end to end.</p>
+    </div>
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="stage">
+          <span class="label">sources</span>
+          <div class="node">MySQL<small>binlog</small></div><div class="node">MongoDB<small>oplog</small></div><div class="node">PostgreSQL · SQL Server<small>WAL · CDC</small></div><div class="node">Event collector<small>web, mobile, iPad events</small></div>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="stage">
+          <span class="label">stream · data EKS + MSK</span>
+          <div class="node hl">Kafka Connect source connectors<small>Debezium on Strimzi, 900+ connectors as Git CRs</small></div>
+          <div class="node hl">Amazon MSK<small>multi-AZ, CDC and event topics</small></div>
+          <div class="node hl">ClickHouse sink connectors<small>batching, type mapping, DLQ</small></div>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="stage">
+          <span class="label">warehouse · tools</span>
+          <div class="node">ClickHouse<small>analytics warehouse</small></div>
+          <div class="node">Airflow + Spark<small>EMR on EKS, spot executors</small></div>
+          <div class="node">OpenMetadata · Superset<small>catalog, lineage, BI</small></div>
+          <div class="node">Airbyte<small>SaaS and ELT sources</small></div>
+        </div>
+      </div>
+      <div class="stage">
+        <span class="label">SLIs I defined and alert on</span>
+        <div class="slis">
+          <span class="chip ok">freshness</span><span class="chip ok">throughput</span><span class="chip ok">consumer lag</span><span class="chip ok">error budget</span><span class="chip">error rate</span><span class="chip">retries</span><span class="chip">DLQ volume</span><span class="chip">processing latency</span><span class="chip">per-tenant success</span>
+        </div>
+      </div>
+      <div class="flow-foot">
+        <p><b>Infrastructure as code.</b> MSK, RDS/Aurora, IRSA, S3 and EKS through Terragrunt, with reusable MSK, Kinesis, Valkey and self-hosted OpenSearch modules. Everything ships via GitOps: Jenkins builds, ArgoCD syncs, a promotion job moves stage to prod.</p>
+        <p><b>Drift control.</b> A Jenkins reconcile job diffs connector names in Git against the live CRs and the Connect REST API, reports orphans, runs dry-run by default and needs prod approval to delete.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="ownership" style="display:flex;flex-direction:column;gap:28px">
+    <div class="sec-head">
+      <span class="label">ownership · allen digital</span>
+      <h2>Platform, observability and cost, owned end to end</h2>
+      <p>Besides the data platform, I ran the app cluster, owned how the whole org saw its systems, and owned what it paid for them. Most of this is code: alerts, sampling rules and cost tags live in Git and ship through review.</p>
+    </div>
+    <div class="own">
+      <div class="panel">
+        <div class="panel-title"><h3>Observability</h3><span class="label">groundcover · otel · grafana</span></div>
+        <ul>
+          <li><b>As code</b><span>Every alert, route and contact point in Terraform, applied by Jenkins on each PR. One teams file maps services to owners; prod pages PagerDuty, stage goes to Slack.</span></li>
+          <li><b>Signal, not noise</b><span>Longer default alert windows to stop flapping, scoped exclusions for scanners and telemetry paths, and per-service overrides instead of global mutes.</span></li>
+          <li><b>Cardinality</b><span>Dropped <span class="mono">request_id</span> in the OTel collector, capped Kong metric cardinality, and added head-based trace sampling to the shared Go service framework.</span></li>
+          <li><b>Coverage</b><span>Kong per-API status and upstream-health metrics; Airflow metrics moved from lossy StatsD/UDP to OTLP; batch-job logs routed to stdout so pipelines stopped being blind.</span></li>
+          <li><b>Cost of seeing</b><span>A weekday ingestion-trend report on the noisiest services by log and trace volume, so growth gets caught before the invoice does.</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><h3>Cost &amp; capacity</h3><span class="label">finops · right-sizing</span></div>
+        <ul>
+          <li><b>Commitments</b><span>ElastiCache reserved nodes plus a Compute Savings Plan: ~30% effective discount, ~$30k a year.</span></li>
+          <li><b>Attribution</b><span>Spark pods on EMR-on-EKS tagged with their Airflow DAG and task, so "the EMR bill is high" became "this pipeline costs this much".</span></li>
+          <li><b>Compute</b><span>Spark on spot, ARM64 Karpenter node pools, and native multi-arch builds in the shared Jenkins library instead of QEMU emulation.</span></li>
+          <li><b>Right-sizing</b><span>The ElastiCache fleet moved to Valkey in batches, OpenSearch and cache nodes downsized, Superset and Airflow tuned to real load.</span></li>
+          <li><b>Build vs buy</b><span>Evaluated managed autoscaling platforms against Karpenter before committing to one.</span></li>
+          <li><b>Early warning</b><span>Built <a href="https://github.com/a-kash-singh/aws-cost-anomaly-alert">aws-cost-anomaly-alert</a> so spend spikes reach Slack the day they start.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><h3>App platform, reliability &amp; automation</h3><span class="label">eks · istio · gitops · jenkins</span></div>
+      <div class="own" style="gap:14px 28px">
+        <ul>
+          <li><b>App cluster</b><span>Ran the production app EKS and its services next to the data platform: onboarding with Helm, ArgoCD, IRSA and CSI secrets, plus probes, autoscaling and replicas spread across nodes.</span></li>
+          <li><b>Service mesh</b><span>Introduced Istio to make service-to-service traffic more reliable and easier to see, and used its zone-aware routing to cut inter-AZ cost.</span></li>
+          <li><b>Uptime</b><span>Hardened services against restart storms and slow shutdowns, tuned connection pools, and wrote runbooks for the issues that kept coming back.</span></li>
+        </ul>
+        <ul>
+          <li><b>Provisioning</b><span>Infra as reviewed Terragrunt PRs with reusable modules, so a new database, queue or cache was a merge, not a ticket.</span></li>
+          <li><b>Access</b><span>A Jenkins pipeline for AWS Identity Center access by resource name, with approvals, expiry and automatic clean-up.</span></li>
+          <li><b>Recurring fixes</b><span>Self-service jobs for pod restarts, DLQ redrives, heap profiles and one-off cluster commands, so repeat issues stopped needing DevOps.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><h3>Team release: OTP reliability &amp; cost</h3><span class="label">aug 2026 · shared credit</span></div>
+      <div class="team">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <p style="font-size:.95rem">OTP volume was far out of line with daily active users. We put bot detection on the public send-OTP API in monitor mode first, confirmed most of the traffic wasn't human, then switched it to block. I was one of five engineers credited in the release, and I helped on the WAF side with the bot-detection rules in front of the API.</p>
+          <ul>
+            <li>WAF bot detection in front of the operator, rolled out monitor → block</li>
+            <li>Tighter rate limits on the OTP APIs</li>
+            <li>A multi-operator retry chain, so one failing route falls through to the next</li>
+            <li>WhatsApp as a second OTP channel</li>
+          </ul>
+        </div>
+        <div class="team-stats">
+          <div><b>~82%</b><span>of send-OTP requests were bots, now blocked with no impact on real users</span></div>
+          <div><b>~₹1.35 cr/yr</b><span>annualised savings for the team's release</span></div>
+          <div><b>90% → 97%</b><span>OTP delivery rate</span></div>
+          <div><b>96%</b><span>of OTPs delivered within 5 seconds</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="postmortems" style="display:flex;flex-direction:column;gap:28px">
+    <div class="sec-head">
+      <span class="label">postmortems · abridged</span>
+      <h2>Incidents I worked on</h2>
+      <p>The ones worth retelling are the failures that didn't look like their cause. Blameless, shortened, and scrubbed of internal names and numbers.</p>
+    </div>
+    <div class="pms">
+      <article class="pm"><div class="pm-top"><span class="sev" style="--c:var(--warn)">DNS</span><span class="mono">kubernetes</span></div>
+        <h3>Unrelated services failing together</h3>
+        <dl><dt>Impact</dt><dd>Database connections, GitOps sync and several services degraded at the same time.</dd>
+        <dt>Cause</dt><dd>One misbehaving pod made its clients retry nonstop, which saturated cluster DNS for everyone.</dd>
+        <dt>Fix</dt><dd>Fixed the workload, then pushed for node-local DNS caching to shrink the blast radius next time.</dd></dl></article>
+      <article class="pm"><div class="pm-top"><span class="sev" style="--c:var(--warn)">DB</span><span class="mono">postgres</span></div>
+        <h3>High CPU with no traffic spike</h3>
+        <dl><dt>Impact</dt><dd>Queries slowed down across the board.</dd>
+        <dt>Cause</dt><dd>Catalog statistics bloated after a large bulk delete, so query planning itself became the bottleneck.</dd>
+        <dt>Fix</dt><dd>Cleaned up the bloat instead of scaling the instance up.</dd></dl></article>
+      <article class="pm"><div class="pm-top"><span class="sev" style="--c:var(--c-allen)">IAM</span><span class="mono">go operator</span></div>
+        <h3>Workloads losing AWS access</h3>
+        <dl><dt>Impact</dt><dd>New tenant environments couldn't assume their IAM role.</dd>
+        <dt>Cause</dt><dd>A shared IRSA role's trust policy grew with every tenant until it hit IAM's size limit.</dd>
+        <dt>Fix</dt><dd>Collapsed entries into one wildcard per service account and added an operator sweeper with a grace period, dry-run first.</dd></dl></article>
+      <article class="pm"><div class="pm-top"><span class="sev" style="--c:var(--c-vmw)">CDC</span><span class="mono">kafka connect</span></div>
+        <h3>Connectors failing after a cert rotation</h3>
+        <dl><dt>Impact</dt><dd>Some change-data streams stopped with TLS handshake errors.</dd>
+        <dt>Cause</dt><dd>A database CA change the connector truststore didn't recognise.</dd>
+        <dt>Fix</dt><dd>Targeted config on the failing connectors only, with TLS kept on; the lasting fix is shipping the CA bundle in the image.</dd></dl></article>
+      <article class="pm"><div class="pm-top"><span class="sev" style="--c:var(--c-pharm)">SCALE</span><span class="mono">autoscaling</span></div>
+        <h3>Intermittent 503s from a core service</h3>
+        <dl><dt>Impact</dt><dd>A latency-critical dependency returned errors under normal load.</dd>
+        <dt>Cause</dt><dd>A vertical autoscaler cut its CPU request based on average use, so it throttled at peak.</dd>
+        <dt>Fix</dt><dd>Reverted, and kept latency-critical services out of automatic right-sizing until load-tested.</dd></dl></article>
+      <article class="pm"><div class="pm-top"><span class="sev" style="--c:var(--c-phdata)">PERF</span><span class="mono">application</span></div>
+        <h3>Tail latency on one busy endpoint</h3>
+        <dl><dt>Impact</dt><dd>Repeated P99 breaches and pressure on a shared cache.</dd>
+        <dt>Cause</dt><dd>An N+1 pattern: records were enriched before pagination, multiplying downstream calls.</dd>
+        <dt>Fix</dt><dd>Proposed: paginate first, batch the lookups, add bounded parallelism, and fold earlier partial fixes into one change.</dd></dl></article>
+    </div>
+  </section>
+
+  <section id="experience" style="display:flex;flex-direction:column;gap:28px">
+    <div class="sec-head">
+      <span class="label">changelog</span>
+      <h2>Where I've been on call</h2>
+    </div>
+    <div class="log">
+      <article class="entry">
+        <div class="when"><span class="tag" style="--c:var(--c-allen)">Allen Digital</span><span class="mono">09/2024 – 09/2026</span></div>
+        <div class="role">
+          <h3>Senior DevOps Engineer <span>· App &amp; Data Platforms, Observability, Cost</span></h3>
+          <div class="groups">
+            <div><h4>Data platform</h4><ul>
+              <li>Built the Kafka Connect / MSK CDC and event platform into ClickHouse across three EKS clusters.</li>
+              <li>Ran Airflow, Spark on EMR-on-EKS, OpenMetadata (1.9 → 2.0), Superset and a new Airbyte install at ~99.9% uptime.</li>
+            </ul></div>
+            <div><h4>App platform</h4><ul>
+              <li>Managed the production app EKS cluster and its services alongside the data platform, with reliability and uptime as the job.</li>
+              <li>Introduced the Istio service mesh for more reliable, observable service traffic and zone-aware routing.</li>
+            </ul></div>
+            <div><h4>Reliability</h4><ul>
+              <li>Defined SLIs/SLOs and error budgets; on-call owner from source DB to warehouse load.</li>
+              <li>Zero-downtime VPC consolidation, Control Tower migration and OpenSearch 2.19 → 3.2 upgrade.</li>
+            </ul></div>
+            <div><h4>Automation</h4><ul>
+              <li>Automated infra provisioning, AWS access requests and the day-to-day fixes that kept recurring: pod restarts, DLQ redrives, heap profiles.</li>
+              <li>Terragrunt modules and PR-driven plans so new infra was a reviewed change, not a ticket.</li>
+            </ul></div>
+            <div><h4>Cost</h4><ul>
+              <li>OpenSearch $80k → $35k/yr; Spark $96k → $45k/yr; RIs + Savings Plan ~$30k/yr.</li>
+              <li>Zone-aware routing cut inter-AZ transfer ~40%; Groundcover ingestion −20%+.</li>
+            </ul></div>
+            <div><h4>Hiring</h4><ul>
+              <li>Technical panelist for 37+ candidates across three DevOps levels, up to Lead.</li>
+            </ul></div>
+          </div>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="when"><span class="tag" style="--c:var(--c-vmw)">VMware</span><span class="mono">08/2023 – 08/2024</span></div>
+        <div class="role">
+          <h3>Site Reliability Engineer</h3>
+          <ul>
+            <li>Operated production Kubernetes clusters running 1,000+ vCPUs.</li>
+            <li>Designed Gatling load and performance test plans to find bottlenecks before customers did.</li>
+            <li>Built Dynatrace and Wavefront dashboards and alerts that shortened detection and response.</li>
+            <li>On-call rotation within SLA; CVE triage and remediation; Jenkins CI/CD pipelines.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="when"><span class="tag" style="--c:var(--c-pharm)">PharmEasy</span><span class="mono">01/2022 – 08/2023</span></div>
+        <div class="role">
+          <h3>Site Reliability Engineer</h3>
+          <ul>
+            <li>Cut AWS costs ~25% through right-sizing, reserved instance planning and cleanup.</li>
+            <li>Wrote an in-house Python deployment bot that removed manual release steps.</li>
+            <li>Ansible + Terraform for on-demand environments, including load-test and monitoring stacks.</li>
+            <li>Ran Prometheus-based observability on Kubernetes; wrote the team's onboarding docs.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="when"><span class="tag" style="--c:var(--c-phdata)">phData</span><span class="mono">07/2019 – 01/2022</span></div>
+        <div class="role">
+          <h3>DevOps Engineer</h3>
+          <ul>
+            <li>Managed Hadoop/YARN clusters with thousands of nodes, 40+ PB and tens of thousands of daily jobs.</li>
+            <li>Operated 400+ node Cloudera clusters for a Mastercard fintech account through incidents and upgrades.</li>
+            <li>Spark, HDFS, Hive, Impala, Kafka, BDR and CDSW; capacity planning on multi-tenant clusters.</li>
+            <li>24×7 on-call; Ansible automation to standardise cluster configuration.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="projects" style="display:flex;flex-direction:column;gap:28px">
+    <div class="sec-head">
+      <span class="label">side projects</span>
+      <h2>Tools I built because I needed them</h2>
+    </div>
+    <div class="repos">
+      <a class="repo" href="https://github.com/a-kash-singh/kube-tailor">
+        <span class="repo-name">kube-tailor</span>
+        <p>A mutating admission webhook that right-sizes DaemonSet CPU and memory requests to each node's real capacity, using Karpenter labels or node status. Opt-in labels, min/max clamping, fail-open admission. It fills a gap cluster autoscalers leave open.</p>
+        <div class="langs"><span class="chip">Go</span><span class="chip">Kubernetes</span><span class="chip">Karpenter</span></div>
+      </a>
+      <a class="repo" href="https://github.com/a-kash-singh/mysqlens">
+        <span class="repo-name">mysqlens</span>
+        <p>Local-first MySQL tuning. Reads performance_schema for slow queries and unused, redundant or missing indexes, then asks a pluggable LLM (Ollama, OpenAI, Gemini, DeepSeek) for fixes. Schema and query data never leave localhost.</p>
+        <div class="langs"><span class="chip">Python · FastAPI</span><span class="chip">Next.js · TS</span></div>
+      </a>
+      <a class="repo" href="https://github.com/a-kash-singh/aws-cost-anomaly-alert">
+        <span class="repo-name">aws-cost-anomaly-alert</span>
+        <p>A Lambda bot that posts AWS Cost Anomaly Detection findings to Slack, so the team hears about unexpected spend the day it starts instead of at month end. Built at Allen Digital.</p>
+        <div class="langs"><span class="chip">Python</span><span class="chip">AWS Lambda</span><span class="chip">Slack</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:28px" aria-labelledby="stack-h">
+    <div class="sec-head">
+      <span class="label">stack</span>
+      <h2 id="stack-h">What's in the toolbox</h2>
+    </div>
+    <div class="stack"><pre><span class="c"># akash.yaml</span>
+<span class="k">cloud:</span>          [AWS, EKS, VPC, IAM, KMS, S3, MSK, Kinesis, Lambda, EC2, ELB, ElastiCache, Control Tower]
+<span class="k">orchestration:</span>  [Kubernetes, Helm, Docker, Karpenter]
+<span class="k">iac_and_ci:</span>     [Terraform, Ansible, Jenkins, ArgoCD, Atlantis, GitOps]
+<span class="k">data_streaming:</span> [Kafka, Kafka Connect, CDC, Airflow, Airbyte, Spark, Cloudera Hadoop, ClickHouse, OpenSearch]
+<span class="k">datastores:</span>     [MySQL, PostgreSQL, MongoDB, Redis, Valkey, OpenMetadata]
+<span class="k">observability:</span>  [Prometheus, Grafana, Groundcover, Dynatrace, Wavefront, Gatling]
+<span class="k">sre_practice:</span>   [SLIs/SLOs, error budgets, incident command, capacity planning, on-call ownership]
+<span class="k">languages:</span>      [Go, Python, Java, Bash]
+<span class="k">education:</span>      B.Tech CSE, Babu Banarasi Das University (2015–2019)</pre></div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <span class="label">page me (politely)</span>
+      <h2>Want to talk reliability?</h2>
+      <p class="lede" style="font-size:1rem">Happy to swap notes on SLOs, Kafka, Kubernetes or trimming a cloud bill. LinkedIn is the best way to reach me.</p>
+    </div>
+    <div class="links">
+      <a href="https://linkedin.com/in/a-kash-singh">LinkedIn <span class="muted">/in/a-kash-singh ↗</span></a>
+      <a href="https://github.com/a-kash-singh">GitHub <span class="muted">@a-kash-singh ↗</span></a>
+    </div>
+  </section>
+
+  <footer class="credits">
+    <span class="label">credits</span>
+    <p>Ideas borrowed, with thanks, from:</p>
+    <ul>
+      <li><a href="https://github.com/Kuberwastaken/Kuberwastaken.github.io">Kuber Mehta's terminal portfolio</a> for the idea of a command-driven terminal mode (history, tab completion, typo suggestions).</li>
+    </ul>
+  </footer>
+</main>
+
+<script>
+(function(){
+  /* theme toggle */
+  var root=document.documentElement, btn=document.getElementById('theme-btn'), lbl=document.getElementById('theme-label');
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');
+  function eff(){var t=root.getAttribute('data-theme');return t?t:(mq.matches?'dark':'light');}
+  try{var saved=localStorage.getItem('theme');if(saved==='dark'||saved==='light')root.setAttribute('data-theme',saved);}catch(e){}
+  function sync(){var cur=eff();lbl.textContent=cur==='dark'?'light':'dark';btn.setAttribute('aria-label','Switch to '+(cur==='dark'?'light':'dark')+' theme');}
+  btn.addEventListener('click',function(){var next=eff()==='dark'?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('theme',next);}catch(e){}sync();});
+  sync();
+
+  /* background: service topology with request packets and self-healing pods */
+  var cv=document.getElementById('topo'), ctx=cv.getContext('2d');
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W,H,dpr,nodes=[],edges=[],packets=[],col={};
+  var names=['ingress','api-gw','auth','kafka-0','kafka-1','kafka-2','connect','clickhouse','airflow','redis','opensearch','prom','grafana','argocd','karpenter','istiod','mysql','mongo','pg','dlq'];
+  function readCols(){var cs=getComputedStyle(root);['line','muted','ok','warn','accent','ground'].forEach(function(k){col[k]=cs.getPropertyValue('--'+k).trim();});col.dark=eff()==='dark';}
+  function rnd(seed){return function(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};}
+  function build(){
+    dpr=Math.min(window.devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
+    cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+    var r=rnd(7),n=Math.max(10,Math.min(20,Math.round(W*H/70000)));nodes=[];
+    for(var i=0;i<n;i++){nodes.push({x:30+r()*(W-60),y:70+r()*(H-100),name:names[i%names.length],state:0,t:0,ph:r()*6});}
+    edges=[];
+    nodes.forEach(function(a,i){var d=nodes.map(function(b,j){return [j,(a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)];}).filter(function(p){return p[0]!==i;}).sort(function(p,q){return p[1]-q[1];});
+      d.slice(0,2).forEach(function(p){var j=p[0];if(!edges.some(function(e){return (e[0]===i&&e[1]===j)||(e[0]===j&&e[1]===i);}))edges.push([i,j]);});});
+    packets=[];
+  }
+  function draw(now){
+    ctx.clearRect(0,0,W,H);
+    var a=col.dark?0.55:0.5;
+    // dot grid
+    ctx.fillStyle=col.line;ctx.globalAlpha=col.dark?0.9:0.8;
+    for(var gx=12;gx<W;gx+=32)for(var gy=12;gy<H;gy+=32)ctx.fillRect(gx,gy,1.2,1.2);
+    // edges
+    ctx.globalAlpha=a;ctx.strokeStyle=col.line;ctx.lineWidth=1;ctx.setLineDash([4,5]);
+    edges.forEach(function(e){var p=nodes[e[0]],q=nodes[e[1]];ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();});
+    ctx.setLineDash([]);
+    // packets
+    ctx.fillStyle=col.accent;
+    packets.forEach(function(k){var p=nodes[k.e[0]],q=nodes[k.e[1]];if(k.rev){var t=p;p=q;q=t;}var x=p.x+(q.x-p.x)*k.t,y=p.y+(q.y-p.y)*k.t;ctx.globalAlpha=0.9;ctx.beginPath();ctx.arc(x,y,2.6,0,7);ctx.fill();ctx.globalAlpha=0.18;ctx.beginPath();ctx.arc(x,y,5,0,7);ctx.fill();});
+    // nodes
+    nodes.forEach(function(nd){
+      var c=nd.state?col.warn:col.ok;
+      ctx.globalAlpha=a+0.15;ctx.fillStyle=col.ground;ctx.strokeStyle=c;ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.arc(nd.x,nd.y,5,0,7);ctx.fill();ctx.stroke();
+      ctx.fillStyle=c;ctx.beginPath();ctx.arc(nd.x,nd.y,2,0,7);ctx.fill();
+      if(nd.state){var rr=5+((now-nd.t)/120)%10;ctx.globalAlpha=Math.max(0,0.5-(rr-5)/20);ctx.beginPath();ctx.arc(nd.x,nd.y,rr,0,7);ctx.stroke();}
+      ctx.globalAlpha=a;ctx.fillStyle=col.muted;ctx.font='10px "JetBrains Mono", ui-monospace, monospace';
+      ctx.fillText(nd.name+(nd.state?' · CrashLoopBackOff':''),nd.x+9,nd.y+3.5);
+    });
+    ctx.globalAlpha=1;
+  }
+  var last=0,nextFail=0;
+  window.__topoFail=function(){if(!nodes.length)return null;var nd=nodes[(Math.random()*nodes.length)|0];nd.state=1;nd.t=performance.now();nextFail=nd.t+4000;if(reduce)draw(0);return nd.name;};
+  function tick(now){
+    var dt=Math.min(50,now-(last||now));last=now;
+    if(Math.random()<0.06&&packets.length<28){packets.push({e:edges[(Math.random()*edges.length)|0],t:0,rev:Math.random()<.5,v:0.00035+Math.random()*0.0004});}
+    packets.forEach(function(k){k.t+=k.v*dt;});packets=packets.filter(function(k){return k.t<1;});
+    if(now>nextFail){var nd=nodes[(Math.random()*nodes.length)|0];if(!nd.state){nd.state=1;nd.t=now;}nextFail=now+3500+Math.random()*3000;}
+    nodes.forEach(function(nd){if(nd.state&&now-nd.t>2600)nd.state=0;});
+    draw(now);
+    if(!document.hidden)requestAnimationFrame(tick);
+  }
+  function start(){readCols();build();if(reduce){draw(0);}else{requestAnimationFrame(tick);}}
+  var rt;addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){build();if(reduce)draw(0);},150);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&!reduce){last=0;requestAnimationFrame(tick);}});
+  new MutationObserver(function(){readCols();sync();if(reduce)draw(0);}).observe(root,{attributes:true,attributeFilter:['data-theme']});
+  if(mq.addEventListener)mq.addEventListener('change',function(){readCols();sync();if(reduce)draw(0);});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(start);else start();
+})();
+</script>
+<script>
+(function(){
+  var bars=document.getElementById('bars'), tip=document.getElementById('bar-tip');
+  // employer by month index (months since Jan 2019)
+  function who(y,m){var t=y*12+m;
+    if(t< 2022*12+0) return ['phData','--c-phdata'];
+    if(t< 2023*12+7) return ['PharmEasy','--c-pharm'];
+    if(t< 2024*12+8) return ['VMware','--c-vmw'];
+    return ['Allen Digital','--c-allen'];}
+  var y=2019,q=3;
+  for(var i=0;i<29;i++){
+    var mid=(q-1)*3+1, w=who(y,mid), el=document.createElement('i');
+    el.style.setProperty('--c','var('+w[1]+')');
+    var label='Q'+q+' '+y+' · '+w[0]+' · operational';
+    el.title=label; el.setAttribute('aria-label',label); el.tabIndex=0;
+    (function(l){function s(){tip.textContent=l}el.addEventListener('mouseenter',s);el.addEventListener('focus',s);})(label);
+    bars.appendChild(el);
+    q++; if(q>4){q=1;y++;}
+  }
+})();
+</script>
+<script>
+(function(){
+  var T=document.getElementById('term'), body=T.querySelector('.tw-body'), out=T.querySelector('.tw-out'),
+      inp=document.getElementById('tw-in'), ps1=T.querySelector('.tw-ps1');
+  var hist=[], hi=0, busy=false, abort=false, booted=false, lastFocus=null;
+  var NOW=new Date(), ALLEN_END=new Date('2026-10-01T00:00:00+05:30'), allenDone=NOW>=ALLEN_END;
+
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function line(html){var d=document.createElement('div');d.className='ln';d.innerHTML=html==null?'':html;out.appendChild(d);body.scrollTop=body.scrollHeight;return d;}
+  function block(html){var p=document.createElement('pre');p.innerHTML=html;out.appendChild(p);body.scrollTop=body.scrollHeight;}
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  async function slow(lines,ms){for(var i=0;i<lines.length;i++){if(abort)return;line(lines[i]);await sleep(ms||90);}}
+  function pad(s,n){s=String(s);return s+' '.repeat(Math.max(1,n-s.length));}
+  function lnk(url,label){return '<a href="'+url+'" target="_blank" rel="noopener">'+esc(label||url)+'</a>';}
+  function bar(p,w){w=w||24;var f=Math.round(p/100*w);return '<span class="bar">'+'█'.repeat(f)+'</span><span class="d">'+'░'.repeat(w-f)+'</span>';}
+
+  var DATA={
+    jobs:[
+      {id:'allen-digital',co:'Allen Digital',role:'Senior DevOps Engineer · Data Platform',from:'2024-09',to:'2026-09',age:'2y',
+       pts:['Managed the production app EKS cluster and its services; introduced the Istio service mesh for reliability.',
+            'Automated infra provisioning (Terragrunt), AWS access requests and recurring fixes via self-service Jenkins jobs.',
+            'Built a self-service CDC and event platform: Kafka Connect (900+ connectors) + MSK, MySQL/MongoDB/Postgres/SQL Server and client events → ClickHouse, across three EKS clusters.',
+            'Owned observability: Groundcover alerting as code, OTel cardinality control, head-based trace sampling, Kong and Airflow metrics, ingestion-trend reporting.',
+            'Owned cost: RIs + Savings Plan (~$30k/yr), Spark cost attribution by DAG, ARM64 pools, ElastiCache fleet to Valkey.',
+            'Defined SLIs/SLOs (freshness, throughput, consumer lag, error budgets); on-call owner from source DB to warehouse load.',
+            'Led cross-team incident response and post-incident reviews.',
+            'OpenSearch → self-hosted Terraform cluster: $80k → $35k/yr (−56%).',
+            'Spark on Spot with runbook + SOP: $96k → $45k/yr (−53%).',
+            'Zero-downtime VPC consolidation (>$5k/mo saved), AWS Control Tower migration, ElastiCache Redis → Valkey (~20%).',
+            'Zone-aware service-mesh routing: inter-AZ transfer −40%, Kafka connector networking −$1.5k/mo; Groundcover ingestion −20%, query latency +25%.',
+            'Owned Airflow on Kubernetes + OpenMetadata at ~99.9% uptime; Terraform modules for MSK, Kinesis, ElastiCache/Valkey.']},
+      {id:'vmware',co:'VMware',role:'Site Reliability Engineer',from:'2023-08',to:'2024-08',age:'1y',
+       pts:['Operated production Kubernetes clusters running 1,000+ vCPUs.','Gatling load and performance test plans.','Dynatrace + Wavefront dashboards and alerting.','On-call within SLA, CVE remediation, Jenkins CI/CD.']},
+      {id:'pharmeasy',co:'PharmEasy',role:'Site Reliability Engineer',from:'2022-01',to:'2023-08',age:'1y7m',
+       pts:['Cut AWS costs ~25% (right-sizing, RI planning, cleanup).','Built a Python deployment bot.','Ansible + Terraform on-demand environments.','Prometheus observability on Kubernetes.']},
+      {id:'phdata',co:'phData',role:'DevOps Engineer',from:'2019-07',to:'2022-01',age:'2y6m',
+       pts:['Hadoop/YARN clusters: thousands of nodes, 40+ PB, tens of thousands of jobs a day.','400+ node Cloudera clusters for a Mastercard fintech account.','Spark, HDFS, Hive, Impala, Kafka, BDR, CDSW; 24×7 on-call.']}
+    ],
+    projects:[
+      {id:'kube-tailor',lang:'Go',d:'Mutating admission webhook that right-sizes DaemonSet CPU/memory requests to each node\'s real capacity (Karpenter labels or node status). Opt-in labels, min/max clamping, fail-open.'},
+      {id:'mysqlens',lang:'Python · TypeScript',d:'Local-first MySQL tuner. Reads performance_schema for slow queries and unused/redundant/missing indexes, then asks a pluggable LLM (Ollama, OpenAI, Gemini, DeepSeek) for fixes.'},
+      {id:'aws-cost-anomaly-alert',lang:'Python · Lambda',d:'Lambda bot that posts AWS cost anomalies to Slack so the team hears about spend spikes the day they start.'}
+    ],
+    skills:[['Kubernetes / EKS',92],['AWS',92],['Terraform / IaC',90],['Kafka / CDC',88],['Observability',86],['Cost engineering',90],['CI/CD · GitOps',84],['Hadoop / Spark',82],['Python',76],['Go',66]]
+  };
+
+  var C={};
+  C.help=function(){
+    var g=[['who am i',[['whoami','short bio'],['neofetch','system info, SRE edition'],['cat akash.yaml','the stack'],['contact','how to reach me']]],
+           ['career',[['kubectl get pods','every job as a pod'],['kubectl describe pod <name>','details for one job'],['kubectl logs akash','career event stream'],['git log','career as commits']]],
+           ['impact',[['terraform plan','cost cuts as a plan'],['slo','SLOs and error budgets'],['kubectl top skills','skill utilisation']]],
+           ['projects',[['ls projects','side projects'],['cat <project>','details'],['open <project>','GitHub link']]],
+           ['for fun',[['incident','replay a 3am page'],['postmortems','incidents I worked on'],['chaos','kill a pod in the background'],['sudo …','try it'],['uptime · date · history · echo','the usual']]],
+           ['terminal',[['theme light|dark','switch site theme'],['clear','clear screen'],['exit','back to the website']]]];
+    g.forEach(function(s){line('<span class="a">'+s[0]+'</span>');s[1].forEach(function(c){line('  <span class="g">'+esc(pad(c[0],30))+'</span><span class="d">'+c[1]+'</span>');});});
+    line('<span class="d">Tab completes, ↑/↓ walks history, Ctrl+C stops an animation.</span>');
+  };
+  C.whoami=function(){
+    line('<span class="w">Akash Singh</span> <span class="d">· Senior Site Reliability Engineer · Bangalore, IST</span>');
+    line('7 years on call for Hadoop clusters, Kubernetes fleets and Kafka streaming platforms.');
+    line('I build self-service infrastructure on AWS with Terraform and GitOps, set SLOs that');
+    line('teams actually use, and take a lot of money off the cloud bill along the way.');
+  };
+  C.neofetch=function(){
+    var art=['       <span class="b">▄▄█████▄▄</span>      ','    <span class="b">▄██▀</span>  <span class="g">▄</span>  <span class="b">▀██▄</span>    ','   <span class="b">██▀</span> <span class="g">▄███▄</span> <span class="b">▀██</span>   ','  <span class="b">██</span>  <span class="g">███</span> <span class="g">███</span>  <span class="b">██</span>  ','  <span class="b">██</span>   <span class="g">▀███▀</span>   <span class="b">██</span>  ','   <span class="b">██▄</span>   <span class="g">▀</span>   <span class="b">▄██</span>   ','    <span class="b">▀██▄▄▄▄▄██▀</span>    ','       <span class="b">▀▀▀▀▀▀▀</span>       ','                     ','                     '];
+    var info=['<span class="g">akash</span>@<span class="g">prod-eks</span>','<span class="d">-----------------</span>',
+      '<span class="b">OS</span>: SRE Linux 7.0 (on-call edition)','<span class="b">Host</span>: Bangalore, ap-south-1','<span class="b">Uptime</span>: 7 years, 0 unplanned outages of enthusiasm',
+      '<span class="b">Kernel</span>: phData → PharmEasy → VMware → Allen','<span class="b">Shell</span>: bash (kubectl aliased to k)','<span class="b">Packages</span>: terraform, helm, argocd, kafka, spark',
+      '<span class="b">Monitoring</span>: prometheus, grafana, groundcover','<span class="b">Savings</span>: $204k+/yr documented'];
+    block(art.map(function(a,i){return a+'  '+(info[i]||'');}).join('\n'));
+  };
+  C.cat=function(a){
+    var f=(a[0]||'').replace(/^~\//,'');
+    if(!f){line('<span class="r">cat: missing file operand</span>');return;}
+    if(/^akash\.ya?ml$|^stack$/.test(f)){block(
+'<span class="d"># akash.yaml</span>\n<span class="b">cloud:</span>          [AWS, EKS, VPC, IAM, KMS, S3, MSK, Kinesis, Lambda, ElastiCache, Control Tower]\n<span class="b">orchestration:</span>  [Kubernetes, Helm, Docker, Karpenter]\n<span class="b">iac_and_ci:</span>     [Terraform, Ansible, Jenkins, ArgoCD, Atlantis, GitOps]\n<span class="b">data:</span>           [Kafka, Kafka Connect, CDC, Airflow, Airbyte, Spark, Hadoop, ClickHouse, OpenSearch]\n<span class="b">datastores:</span>     [MySQL, PostgreSQL, MongoDB, Redis, Valkey, OpenMetadata]\n<span class="b">observability:</span>  [Prometheus, Grafana, Groundcover, Dynatrace, Wavefront, Gatling]\n<span class="b">practice:</span>       [SLIs/SLOs, error budgets, incident command, capacity planning]\n<span class="b">languages:</span>      [Go, Python, Java, Bash]');return;}
+    var p=DATA.projects.filter(function(x){return x.id===f||x.id+'.md'===f||'projects/'+x.id===f;})[0];
+    if(p){line('<span class="w">'+p.id+'</span> <span class="d">['+p.lang+']</span>');line(esc(p.d));line(lnk('https://github.com/a-kash-singh/'+p.id));return;}
+    line('<span class="r">cat: '+esc(f)+': No such file or directory</span> <span class="d">(try: cat akash.yaml, cat kube-tailor)</span>');
+  };
+  C.ls=function(a){
+    var d=(a.filter(function(x){return x[0]!=='-';})[0]||'').replace(/\/$/,'');
+    if(d==='projects'||d==='~/projects'){DATA.projects.forEach(function(p){line('<span class="b">'+pad(p.id+'/',26)+'</span><span class="d">'+p.lang+'</span>');});return;}
+    line('<span class="b">projects/</span>  <span class="b">runbooks/</span>  akash.yaml  README.md');
+  };
+  C.open=function(a){
+    var n=a[0]||'';var p=DATA.projects.filter(function(x){return x.id===n;})[0];
+    var m={github:'https://github.com/a-kash-singh',linkedin:'https://linkedin.com/in/a-kash-singh'};
+    if(p)line('→ '+lnk('https://github.com/a-kash-singh/'+p.id));else if(m[n])line('→ '+lnk(m[n]));else line('<span class="r">open: unknown target</span> <span class="d">(try: open kube-tailor, open github)</span>');
+  };
+  C.projects=function(){C.ls(['projects']);line('<span class="d">cat &lt;name&gt; for details</span>');};
+  C.kubectl=async function(a){
+    var v=a[0],r=(a[1]||'').toLowerCase();
+    if(v==='get'&&/^(pods?|po|jobs?|experience)$/.test(r)){
+      var rows=['<span class="d">'+pad('NAME',21)+pad('READY',7)+pad('STATUS',11)+pad('RESTARTS',10)+'AGE</span>'];
+      DATA.jobs.forEach(function(j,i){var st=(i===0&&!allenDone)?'<span class="g">Running</span>    ':'<span class="b">Completed</span>  ';
+        rows.push(pad(j.id+'-'+j.from.slice(0,4),21)+pad('1/1',7)+st+pad('0',10)+j.age);});
+      block(rows.join('\n'));
+      if(!allenDone)line('<span class="d"># allen-digital: terminationGracePeriod ends 2026-09-30</span>');
+      return;}
+    if(v==='get'&&/^projects?$/.test(r)){C.ls(['projects']);return;}
+    if(v==='describe'){
+      var n=(a[2]||a[1]||'').toLowerCase();
+      if(/^(engineer|akash)$/.test(n)||(r==='engineer')){C.whoami();line('');line('<span class="d">Events:</span>');line('  Normal  Scheduled  7y   career  Assigned to on-call rotation');line('  Normal  Pulled     2y   allen   Image "kafka-cdc-platform:v1" built from scratch');return;}
+      var j=DATA.jobs.filter(function(x){return n&&(x.id.indexOf(n.replace(/-\d{4}$/,''))===0);})[0];
+      if(j){line('<span class="b">Name:</span>      '+j.id);line('<span class="b">Company:</span>   '+j.co);line('<span class="b">Role:</span>      '+j.role);line('<span class="b">Period:</span>    '+j.from+' → '+j.to);line('<span class="b">Highlights:</span>');j.pts.forEach(function(p){line('  <span class="g">•</span> '+esc(p));});return;}
+      line('<span class="r">Error from server (NotFound): pods "'+esc(n)+'" not found</span>');line('<span class="d">try: kubectl describe pod allen-digital | vmware | pharmeasy | phdata</span>');return;}
+    if(v==='logs'){await C.logs();return;}
+    if(v==='top'){var rows=['<span class="d">'+pad('SKILL',18)+'UTILISATION</span>'];DATA.skills.forEach(function(s){rows.push(pad(s[0],18)+bar(s[1],20)+' '+s[1]+'%');});block(rows.join('\n'));return;}
+    if(v==='delete'){await C.chaos();return;}
+    line('<span class="d">kubectl: try "get pods", "describe pod &lt;name&gt;", "logs akash", "top skills", "delete pod"</span>');
+  };
+  C.k=C.kubectl;
+  C.logs=async function(){
+    var L=[['2019-07-15','INFO','phdata','joined DevOps; first Hadoop cluster with 400+ nodes'],['2020-03-02','WARN','phdata','24x7 on-call enabled; coffee consumption scaling horizontally'],
+      ['2021-06-10','INFO','phdata','fleet now 40+ PB across thousands of nodes'],['2022-01-10','INFO','pharmeasy','role=SRE; AWS bill -25%'],['2022-09-20','INFO','pharmeasy','deploy-bot v1 shipped; manual release steps removed'],
+      ['2023-08-07','INFO','vmware','role=SRE; kubernetes fleet 1000+ vCPU'],['2024-02-14','INFO','vmware','gatling load plans validated perf benchmarks'],['2024-09-02','INFO','allen','role=Senior DevOps; building data platform from scratch'],
+      ['2025-01-20','INFO','allen','kafka-cdc platform live: mysql|mongo|pg -> clickhouse'],['2025-04-11','INFO','allen','opensearch self-hosted: $80k -> $35k/yr'],['2025-07-08','INFO','allen','spark on spot: $96k -> $45k/yr'],
+      ['2025-11-03','INFO','allen','vpc consolidation done, zero downtime'],
+      ['2026-02-10','INFO','allen','redis -> valkey batches rolled to prod'],['2026-08-27','INFO','allen','RIs + savings plan closed: ~$30k/yr'],['2026-08-31','INFO','allen','otp release: WAF bot rules blocked ~82% of traffic, ~INR 1.35 cr/yr saved, delivery 90% -> 97%'],['2026-09-18','WARN','allen','cert rotation broke some CDC connectors; patched same day'],['2026-09-30','INFO','allen','graceful shutdown scheduled; handover runbooks written']];
+    for(var i=0;i<L.length;i++){if(abort)return;var l=L[i];line('<span class="d">'+l[0]+'T09:00:00Z</span> '+(l[1]==='WARN'?'<span class="a">WARN</span>':'<span class="g">INFO</span>')+' <span class="c">['+l[2]+']</span> '+esc(l[3]));await sleep(140);}
+  };
+  C.git=function(a){
+    if(a[0]!=='log'){line('<span class="d">git: try "git log"</span>');return;}
+    [['a1f9c2e','2026-09','feat(allen): CDC ingestion platform, SLOs, $174k+/yr savings'],['7c3d0b1','2024-08','chore(vmware): 1000+ vCPU k8s, gatling, dynatrace'],['e58ab47','2023-08','perf(pharmeasy): aws bill -25%, deploy bot'],['0b9e6aa','2022-01','feat(phdata): 40PB hadoop, 400+ node cloudera'],['4d11f02','2019-05','init: B.Tech CSE, BBD University']]
+    .forEach(function(c,i){line('<span class="a">commit '+c[0]+'</span>'+(i===0?' <span class="c">(HEAD -&gt; main)</span>':''));line('<span class="d">Date:   '+c[1]+'</span>');line('    '+esc(c[2]));line('');});
+  };
+  C.terraform=async function(a){
+    var sub=a[0]||'plan';
+    var R=[['aws_opensearch_domain.managed','$80k/yr','replaced by self-hosted cluster → $35k/yr'],['aws_emr_on_demand.spark','$96k/yr','→ spot fleet $45k/yr'],['aws_vpc.data','$5k+/mo','merged into app VPC'],['aws_cross_az_transfer.kafka','$1.5k+/mo','same-AZ broker alignment'],['aws_elasticache.redis','~20%','→ valkey'],['groundcover_labels.high_cardinality','20%+','dropped'],['aws_on_demand_pricing.elasticache','~$30k/yr','RIs + Compute Savings Plan']];
+    if(sub==='plan'||sub==='apply'){
+      line('<span class="d">Refreshing state... [id=akash-singh]</span>');await sleep(300);if(abort)return;
+      line('');line('Terraform will perform the following actions:');line('');
+      for(var i=0;i<R.length;i++){if(abort)return;line('  <span class="r"># '+R[i][0]+'</span> will be <span class="r">destroyed</span>');line('  <span class="r">-</span> cost = <span class="r">"'+R[i][1]+'"</span> <span class="d"># '+R[i][2]+'</span>');await sleep(120);}
+      line('');line('<span class="w">Plan:</span> 0 to add, 0 to change, <span class="r">7 to destroy</span>. <span class="g">Savings: $204k+/yr</span>');
+      if(sub==='apply'){await sleep(400);line('');line('<span class="g">Apply complete! Resources: 0 added, 0 changed, 7 destroyed.</span>');line('<span class="d">(already applied in prod between 2024 and 2026, zero downtime)</span>');}
+      return;}
+    line('<span class="d">terraform: try "terraform plan" or "terraform apply"</span>');
+  };
+  C.slo=function(){
+    var rows=['<span class="d">'+pad('SERVICE',15)+pad('SLI',19)+pad('TARGET',8)+'ERROR BUDGET LEFT</span>'];
+    [['cdc-ingestion','data freshness','99.9%',72],['cdc-ingestion','consumer lag < 5m','99.5%',64],['airflow','scheduler up','99.9%',81],['openmetadata','API availability','99.9%',88]]
+    .forEach(function(s){rows.push(pad(s[0],15)+esc(pad(s[1],19))+pad(s[2],8)+bar(s[3],14)+' '+s[3]+'%');});
+    block(rows.join('\n'));
+    line('<span class="d"># illustrative budgets; the SLIs are the ones I defined and alerted on at Allen</span>');
+  };
+  C.incident=async function(){
+    line('<span class="d"># illustrative replay of a typical CDC page, not a real incident</span>');
+    var s=[['<span class="r">[FIRING]</span> KafkaConnectConsumerLagHigh  sev2  ns=data-platform  lag=48m',700],['<span class="d">03:02</span> pager: page sent to akash (primary on-call)',500],['<span class="d">03:03</span> <span class="g">ack</span> by akash. Opening runbook: runbooks/kafka-connect-lag.md',600],
+      ['<span class="d">03:05</span> kubectl get pods -n data-platform  → connect-worker-2 <span class="a">CrashLoopBackOff</span> (OOMKilled)',700],['<span class="d">03:07</span> DLQ volume rising on one tenant; freshness SLO burning at 14x',700],
+      ['<span class="d">03:09</span> mitigation: bump worker memory via GitOps PR, restart task with backoff',700],['<span class="d">03:14</span> connect-worker-2 <span class="g">Running</span>; lag draining 48m → 6m',800],['<span class="d">03:21</span> lag 0m. <span class="g">[RESOLVED]</span> KafkaConnectConsumerLagHigh',600],
+      ['',200],['<span class="w">MTTA</span> 1m · <span class="w">MTTR</span> 19m · error budget spent: 3.1%',300],['<span class="d">Next: blameless postmortem, per-tenant memory limits, alert on DLQ growth rate.</span>',0]];
+    for(var i=0;i<s.length;i++){if(abort){line('<span class="a">^C incident replay stopped (the pager is still yours)</span>');return;}line(s[i][0]);await sleep(s[i][1]);}
+  };
+  C.postmortems=function(){
+    [['DNS','one misbehaving pod made clients retry nonstop and saturated cluster DNS; added node-local caching'],
+     ['DB','catalog statistics bloat after a bulk delete made query planning the bottleneck; cleaned up, no scale-up'],
+     ['IAM','shared IRSA trust policy hit the size limit; per-SA wildcards + an operator sweeper, dry-run first'],
+     ['CDC','CA rotation broke some connectors; targeted fix with TLS kept on, CA bundle in the image long-term'],
+     ['SCALE','vertical autoscaler cut CPU for a latency-critical service; opted such services out until load-tested'],
+     ['PERF','N+1 from enrich-before-paginate; proposed paginate-first, batched lookups, bounded parallelism']]
+    .forEach(function(p){line('<span class="a">'+pad('['+p[0]+']',8)+'</span>'+esc(p[1]));});
+    line('<span class="d">run</span> <span class="g">incident</span> <span class="d">to replay a page live</span>');
+  };
+  C.chaos=async function(){
+    var n=(window.__topoFail&&window.__topoFail())||'kafka-1';
+    line('<span class="a">chaos-monkey</span>: deleting pod <span class="w">'+esc(n)+'</span> (watch the background)');await sleep(500);if(abort)return;
+    line('pod/'+esc(n)+' <span class="r">Terminating</span>');await sleep(900);if(abort)return;
+    line('pod/'+esc(n)+' <span class="a">ContainerCreating</span>');await sleep(900);if(abort)return;
+    line('pod/'+esc(n)+' <span class="g">Running</span>  <span class="d">readiness probe passed, traffic restored</span>');
+  };
+  C.contact=function(){
+    line('<span class="b">linkedin</span>  '+lnk('https://linkedin.com/in/a-kash-singh'));
+    line('<span class="b">github</span>    '+lnk('https://github.com/a-kash-singh'));
+  };
+  C.linkedin=function(){C.open(['linkedin']);};C.github=function(){C.open(['github']);};
+  C.ping=async function(a){var h=a[0]||'akash';line('PING '+esc(h)+' (linkedin.com/in/a-kash-singh): 56 data bytes');for(var i=0;i<4;i++){if(abort)return;await sleep(350);line('64 bytes from '+esc(h)+': icmp_seq='+i+' ttl=64 time='+(8+Math.random()*6).toFixed(1)+' ms');}line('<span class="d">--- 4 packets transmitted, 4 received, 0.0% packet loss ---</span>');};
+  C.uptime=function(){var ms=NOW-new Date('2019-07-15');var d=Math.floor(ms/864e5);line(' '+NOW.toTimeString().slice(0,8)+' up '+d+' days,  1 user,  load average: 0.42, 0.37, 0.31');};
+  C.date=function(){line(new Date().toString());};
+  C.echo=function(a){line(esc(a.join(' ')));};
+  C.history=function(){hist.forEach(function(h,i){line('<span class="d">'+pad(i+1,5)+'</span>'+esc(h));});};
+  C.clear=function(){out.innerHTML='';};
+  C.theme=function(a){var t=a[0];if(t!=='light'&&t!=='dark'){line('<span class="d">usage: theme light | theme dark</span>');return;}document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('theme',t);}catch(e){}line('site theme → '+t+' <span class="d">(the terminal stays dark, as terminals should)</span>');};
+  C.sudo=function(a){if(a.join(' ').indexOf('rm')>-1){C.rm(a.slice(1));return;}line('<span class="r">akash is not in the sudoers file. This incident will be reported.</span>');line('<span class="d">(to the on-call. Which is me.)</span>');};
+  C.rm=function(a){if(a.join(' ').indexOf('-rf')>-1)line('<span class="r">denied by policy:</span> blast radius exceeds error budget. Nice try.');else line('<span class="d">rm: nothing here is safe to delete</span>');};
+  C.vim=function(){line('<span class="d">you are now trapped in vim. just kidding. type</span> exit <span class="d">to leave the terminal.</span>');};C.vi=C.vim;C.nano=C.vim;
+  C.ssh=function(){line('<span class="r">ssh: connect to host prod port 22: Connection refused</span>');line('<span class="d">(we use SSM Session Manager here)</span>');};
+  C.resume=function(){line('Short version: '+lnk('https://linkedin.com/in/a-kash-singh','linkedin.com/in/a-kash-singh')+' · long version: kubectl get pods');};
+  C.exit=function(){close();};C.gui=C.exit;C.quit=C.exit;
+  C.skills=function(){return C.kubectl(['top','skills']);};
+  C.experience=function(){return C.kubectl(['get','pods']);};
+
+  var NAMES=Object.keys(C).concat(['kubectl get pods','kubectl describe pod','kubectl logs akash','kubectl top skills','terraform plan','terraform apply','git log','ls projects','cat akash.yaml'].concat(DATA.projects.map(function(p){return 'cat '+p.id;})));
+  function lev(a,b){var m=[],i,j;for(i=0;i<=b.length;i++)m[i]=[i];for(j=0;j<=a.length;j++)m[0][j]=j;for(i=1;i<=b.length;i++)for(j=1;j<=a.length;j++)m[i][j]=b[i-1]===a[j-1]?m[i-1][j-1]:Math.min(m[i-1][j-1]+1,m[i][j-1]+1,m[i-1][j]+1);return m[b.length][a.length];}
+
+  async function run(raw){
+    var cmd=raw.trim();
+    line('<span class="tw-ps1">'+ps1.innerHTML+'</span> '+esc(cmd));
+    if(!cmd)return;
+    hist.push(cmd);hi=hist.length;
+    var parts=cmd.split(/\s+/),name=parts[0].toLowerCase(),args=parts.slice(1);
+    if(C.hasOwnProperty(name)){busy=true;abort=false;try{await C[name](args);}finally{busy=false;abort=false;}}
+    else{var best=Object.keys(C).map(function(k){return [k,lev(name,k)];}).sort(function(x,y){return x[1]-y[1];})[0];
+      line('<span class="r">command not found: '+esc(name)+'</span>'+(best&&best[1]<=2?' <span class="d">did you mean</span> <span class="g">'+best[0]+'</span><span class="d">?</span>':' <span class="d">type</span> <span class="g">help</span>'));}
+    line('');
+  }
+  async function boot(){
+    booted=true;
+    await slow(['<span class="d">Last login: '+NOW.toDateString()+' on ttys001 from on-call-laptop</span>',
+      '<span class="g">[  OK  ]</span> Mounted /home/akash',
+      '<span class="g">[  OK  ]</span> Started kubelet: 4 pods (career namespace)',
+      '<span class="g">[  OK  ]</span> Reached target <span class="w">All systems operational</span>',''],110);
+    line('Welcome to <span class="w">akash-singh.prod</span>. Type <span class="g">help</span> to see commands, or tap one below.');line('');
+  }
+  function open(){lastFocus=document.activeElement;T.hidden=false;document.body.style.overflow='hidden';if(!booted)boot();setTimeout(function(){inp.focus();},30);try{history.replaceState(null,'','#terminal');}catch(e){}}
+  function close(){T.hidden=true;document.body.style.overflow='';try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}if(lastFocus&&lastFocus.focus)lastFocus.focus();}
+  window.__openTerm=open;
+
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){e.preventDefault();if(busy)return;var v=inp.value;inp.value='';run(v);}
+    else if(e.key==='ArrowUp'){e.preventDefault();if(hi>0){hi--;inp.value=hist[hi];}}
+    else if(e.key==='ArrowDown'){e.preventDefault();if(hi<hist.length-1){hi++;inp.value=hist[hi];}else{hi=hist.length;inp.value='';}}
+    else if(e.key==='Tab'){e.preventDefault();var v=inp.value.toLowerCase();if(!v)return;var m=NAMES.filter(function(n){return n.indexOf(v)===0;});
+      if(m.length===1)inp.value=m[0]+' ';else if(m.length>1){var pre=m[0];m.forEach(function(x){while(x.indexOf(pre)!==0)pre=pre.slice(0,-1);});if(pre.length>v.length)inp.value=pre;else line('<span class="d">'+m.map(esc).join('   ')+'</span>');}}
+    else if(e.key==='c'&&e.ctrlKey){if(busy){abort=true;}else{line('<span class="tw-ps1">'+ps1.innerHTML+'</span> '+esc(inp.value)+'^C');inp.value='';}}
+    else if(e.key==='l'&&e.ctrlKey){e.preventDefault();C.clear();}
+  });
+  T.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  body.addEventListener('click',function(e){if(!e.target.closest('a')&&!getSelection().toString())inp.focus();});
+  T.addEventListener('click',function(e){if(e.target===T)close();});
+  T.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',close);});
+  T.querySelectorAll('.tw-chips button').forEach(function(b){b.addEventListener('click',function(){if(busy)return;run(b.textContent);inp.focus();});});
+  document.querySelectorAll('[data-open-term]').forEach(function(b){b.addEventListener('click',open);});
+  document.addEventListener('keydown',function(e){if(T.hidden&&e.key==='`'&&!/input|textarea/i.test(document.activeElement.tagName)){e.preventDefault();open();}});
+  if(location.hash==='#terminal')open();
+})();
+</script>
+</body>
+</html>

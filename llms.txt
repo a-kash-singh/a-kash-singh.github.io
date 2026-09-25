@@ -1,0 +1,22 @@
+# Akash Singh
+
+> Senior Site Reliability Engineer (~7 years), Bangalore, India. SRE / DevOps / platform engineering: AWS, Kubernetes/EKS, Terraform, Kafka CDC platforms, Spark, observability and cloud cost engineering.
+
+## Contact
+- Site: https://a-kash-singh.github.io/
+- LinkedIn: https://linkedin.com/in/a-kash-singh
+- GitHub: https://github.com/a-kash-singh
+
+## Experience
+- Allen Digital, Senior DevOps Engineer (09/2024 - 09/2026): built a self-service CDC and event platform (900+ Kafka Connect connectors on MSK; MySQL/MongoDB/PostgreSQL/SQL Server and client events to ClickHouse) across three EKS clusters via Terraform/Terragrunt and GitOps; owned observability (Groundcover alerting as code, OTel cardinality control, head-based trace sampling, ingestion-trend reporting) and cost (RIs + Compute Savings Plan ~$30k/yr, Spark cost attribution by DAG, ARM64 pools, ElastiCache fleet to Valkey); managed the production app EKS cluster (~200 microservices) and its services with a focus on reliability and uptime; introduced the Istio service mesh; automated infra provisioning (Terragrunt), AWS access requests and recurring operational fixes via self-service Jenkins jobs; 597 PRs across ~60 repos; interview panelist for 37+ DevOps candidates; part of the team behind an OTP reliability and cost release, helping on the WAF bot-detection side (blocked ~82% of send-OTP traffic; ~INR 1.35 crore/yr annualised savings; delivery 90% to 97%; 96% delivered within 5 s); defined SLIs/SLOs and error budgets and owned on-call end to end; OpenSearch self-hosting cut costs 56% ($80k to $35k/yr); Spark on Spot cut 53% ($96k to $45k/yr); zero-downtime VPC consolidation (>$5k/mo) and Control Tower migration; ElastiCache Redis to Valkey (~20%); zone-aware routing cut inter-AZ transfer ~40%; Groundcover ingestion cut 20%+; owned Airflow and OpenMetadata at ~99.9% uptime.
+- VMware, Site Reliability Engineer (08/2023 - 08/2024): production Kubernetes at 1,000+ vCPUs, Gatling load testing, Dynatrace/Wavefront alerting, on-call, CVE remediation, Jenkins CI/CD.
+- PharmEasy, Site Reliability Engineer (01/2022 - 08/2023): ~25% AWS cost reduction, Python deployment bot, Ansible + Terraform environments, Prometheus on Kubernetes.
+- phData, DevOps Engineer (07/2019 - 01/2022): Hadoop/YARN clusters with thousands of nodes and 40+ PB; 400+ node Cloudera clusters for a Mastercard account; 24x7 on-call.
+
+## Projects
+- kube-tailor: Go mutating admission webhook that right-sizes DaemonSet requests to node capacity (Karpenter-aware, fail-open).
+- mysqlens: local-first MySQL performance tool (FastAPI + Next.js) with pluggable LLM recommendations.
+- aws-cost-anomaly-alert: Lambda bot posting AWS cost anomalies to Slack.
+
+## Education
+- B.Tech, Computer Science & Engineering, Babu Banarasi Das University (2015-2019)
